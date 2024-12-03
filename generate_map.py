@@ -44,18 +44,18 @@ for l in pd.unique(eprDf['istituzione']):
                  popup=htmlpopup(nomiCorr),
                  tooltip=l,icon=folium.Icon(color='darkgreen')).add_to(eprFg)
    
-## IRCSS
-ircssDf=pd.merge(dfnames,dfcoord[dfcoord['tipologia']=='IRCSS'],on='istituzione',how='inner')
-ircssFg=folium.FeatureGroup(name='IRCSS',show=True).add_to(theMap)
+## IRCCS
+irccsDf=pd.merge(dfnames,dfcoord[dfcoord['tipologia']=='IRCSS'],on='istituzione',how='inner')
+irccsFg=folium.FeatureGroup(name='IRCCS',show=True).add_to(theMap)
 
-for l in pd.unique(ircssDf['istituzione']):
+for l in pd.unique(irccsDf['istituzione']):
    print (l)
 
    # Slice a DataFrame including just the current institution members
-   nomiCorr=ircssDf[ircssDf['istituzione']==l]
+   nomiCorr=irccsDf[irccsDf['istituzione']==l]
    folium.Marker(location=[nomiCorr['long'].values[0],nomiCorr['lat'].values[0]],
                  popup=htmlpopup(nomiCorr),
-                 tooltip=l, icon=folium.Icon(color='lightred')).add_to(ircssFg)
+                 tooltip=l, icon=folium.Icon(color='lightred')).add_to(irccsFg)
    
 ## Universita
 uniDf=pd.merge(dfnames,dfcoord[dfcoord['tipologia']=='UNI'],on='istituzione',how='inner')
