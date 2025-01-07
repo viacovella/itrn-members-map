@@ -16,6 +16,11 @@ import os
 dfnames=pd.read_csv(os.path.join(locpath,'fakenames.csv'))
 dfcoord=pd.read_csv(os.path.join(locpath,'coordinate.csv'))
 
+
+# basic color list taken from https://python-visualization.github.io/folium/latest/reference.html
+thecolors=['red', 'blue', 'green', 'purple', 'orange', 'darkred',
+'lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'darkpurple', 'white', 'pink', 'lightblue', 'lightgreen', 'gray', 'black', 'lightgray']
+
 def htmlpopup(df:pd.DataFrame) -> str:
     '''Transform institution name into a title and names and surnames within a dataframe into a html item list'''
 
@@ -31,44 +36,25 @@ theMap = folium.Map(location = [43,12], zoom_start = 6, tiles = "CartoDB positro
 
 # Populate the map with all the institutions categories
 
-## Enti per la ricerca
-eprDf=pd.merge(dfnames,dfcoord[dfcoord['tipologia']=='EPR'],on='istituzione',how='inner')
-eprFg=folium.FeatureGroup(name='EPR',show=True).add_to(theMap)
+#print(dfcoord['tipologia'])
+n=0
+for t in pd.unique(dfcoord['tipologia']):
+   print("tipologia: "+ t)
 
-for l in pd.unique(eprDf['istituzione']):
-   print (l)
-
-   # Slice a DataFrame including just the current institution members
-   nomiCorr=eprDf[eprDf['istituzione']==l]
-   folium.Marker(location=[nomiCorr['long'].values[0],nomiCorr['lat'].values[0]],
-                 popup=htmlpopup(nomiCorr),
-                 tooltip=l,icon=folium.Icon(color='darkgreen')).add_to(eprFg)
+   currdf = pd.merge(dfnames,dfcoord[dfcoord['tipologia']==t],on='istituzione', how='inner')
+   currFg = folium.FeatureGroup(name=t,show=True).add_to(theMap)
    
-## IRCCS
-irccsDf=pd.merge(dfnames,dfcoord[dfcoord['tipologia']=='IRCSS'],on='istituzione',how='inner')
-irccsFg=folium.FeatureGroup(name='IRCCS',show=True).add_to(theMap)
+   for i in pd.unique(currdf['istituzione']):
+      print(i)
+      # Slice a DataFrame including just the current institution members
+      nomiCorr=currdf[currdf['istituzione']==i]
+      folium.Marker(location=[nomiCorr['long'].values[0],nomiCorr['lat'].values[0]],
+                    popup=htmlpopup(nomiCorr),
+                    tooltip=i, icon=folium.Icon(color=thecolors[n])).add_to(currFg)
+      
+   n=n+1 
+    
 
-for l in pd.unique(irccsDf['istituzione']):
-   print (l)
-
-   # Slice a DataFrame including just the current institution members
-   nomiCorr=irccsDf[irccsDf['istituzione']==l]
-   folium.Marker(location=[nomiCorr['long'].values[0],nomiCorr['lat'].values[0]],
-                 popup=htmlpopup(nomiCorr),
-                 tooltip=l, icon=folium.Icon(color='lightred')).add_to(irccsFg)
-   
-## Universita
-uniDf=pd.merge(dfnames,dfcoord[dfcoord['tipologia']=='UNI'],on='istituzione',how='inner')
-uniFg=folium.FeatureGroup(name='Universita',show=True).add_to(theMap)
-
-for l in pd.unique(uniDf['istituzione']):
-   print (l)
-   # Slice a DataFrame including just the current institution members
-   nomiCorr=uniDf[uniDf['istituzione']==l]
-   
-   folium.Marker(location=[nomiCorr['long'].values[0],nomiCorr['lat'].values[0]],
-                 popup=htmlpopup(nomiCorr),
-                 tooltip=l).add_to(uniFg)
    
 # Create the map
 folium.LayerControl().add_to(theMap)
